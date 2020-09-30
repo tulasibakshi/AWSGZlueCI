@@ -8,9 +8,20 @@ pipeline {
             }
 
         }
-        stage('Deploy') {
+        stage('ValidateTemplate') {
             steps {
-                withAWS(region: 'us-west-2')
+                script{
+                    withAWS(region: 'ap-southeast-1',credentials:'aws-credentials')
+                    {
+                        def response = cfnValidate(file:'gluedatalake.yaml')
+                        echo "template description: ${response}"
+                    }  
+                }    
+            }
+        }
+        stage('TestDeploy') {
+            steps {
+                withAWS(region: 'ap-southeast-1',credentials:'aws-credentials')
                     {
                         cfnUpdate(stack:'gluedemocicdtest',
                         file:'gluedatalake.yaml',
@@ -20,43 +31,36 @@ pipeline {
                     }    
             }
         }
+        stage('TestApproval'){
+            steps {
+                input "Deploy to prod?"
+               
+            }    
+        }
         stage('AutomatedLiveTest') {
             steps {
-                withAWS(region: 'us-west-2')
+                withAWS(region: 'ap-southeast-1',credentials:'aws-credentials')
                     {
-                //sh 'python datalakelive_tst.py  gluedemocicdtest'
+                sh 'python datalakelive_tst.py  gluedemocicdtest'
                 echo "test stage"
                     }
             }    
         }
-        stage('LiveTestApproval'){
+        stage('DeleteApproval'){
             steps {
                 input "Deploy to prod?"
-               /** script {
-                def inp = false
-                inp = input "Deploy to prod?"
-                echo 'userInput: ' + inp
-                if(inp == true) {
-                continue
-            } else {
-                
-                echo "Action was aborted."
-                break
-            }
-                }**/
+               
             }    
         }
         
         stage('LiveTestCleanup'){
             steps {
                 
-                withAWS(region: 'us-west-2'){
+                withAWS(region: 'ap-southeast-1',credentials:'aws-credentials'){
                     cfnDelete(stack:'gluedemocicdtest', pollInterval:1000)
                 }
             }
             }
-            
-            
-            
+      
     }
 }
