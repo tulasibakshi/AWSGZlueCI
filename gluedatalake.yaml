@@ -126,7 +126,7 @@ Resources:
         "--TempDir": !Join [ "/", [ "s3:/",!Ref 'binariesBucket' , tmp/ ] ]
         "--sourcedatabase": !Join [ "_", [ "nycitytaxi" , !Ref "AWS::StackName"  ] ]
         "--destinationpath": !Join [ "/", [ "s3:/",!Ref 'binariesBucket' , datalake/ ] ]
-        "--region": !Ref AWS::Region
+        "--region": "ap-southeast-1"
         "--job-bookmark-option": job-bookmark-enable
       Command: 
         Name: glueetl
