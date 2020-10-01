@@ -26,8 +26,7 @@ pipeline {
                         cfnUpdate(stack:'gluedemocicdtest',
                         file:'gluedatalake.yaml',
                         timeoutInMinutes:10,
-                        tags:['TagName=Value'],
-                        pollInterval:1000)
+                        tags:['TagName=Value'])
                     }    
             }
         }
