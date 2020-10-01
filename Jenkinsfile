@@ -11,7 +11,7 @@ pipeline {
         stage('ValidateTemplate') {
             steps {
                 script{
-                    withAWS(region: 'ap-southeast-1',credentials:'aws-credentials')
+                    withAWS(region: 'ap-southeast-1')
                     {
                         def response = cfnValidate(file:'gluedatalake.yaml')
                         echo "template description: ${response}"
@@ -26,15 +26,9 @@ pipeline {
                         cfnUpdate(stack:'gluedemocicdtest',
                         file:'gluedatalake.yaml',
                         timeoutInMinutes:10,
-                        tags:['TagName=Value'])
+                        tags:['TagName=gluejob'])
                     }    
             }
-        }
-        stage('TestApproval'){
-            steps {
-                input "Deploy to prod?"
-               
-            }    
         }
         stage('AutomatedLiveTest') {
             steps {
@@ -45,9 +39,9 @@ pipeline {
                     }
             }    
         }
-        stage('DeleteApproval'){
+        stage('TestCleanupApproval'){
             steps {
-                input "Deploy to prod?"
+                input "Cleanup the test environment?"
                
             }    
         }
